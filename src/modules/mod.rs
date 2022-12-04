@@ -1,5 +1,4 @@
-pub mod file_handling;
+pub mod commands;
 
-pub mod add;
-pub mod remove;
-pub mod select;
+pub mod file_handling;
+pub mod theme_changer;

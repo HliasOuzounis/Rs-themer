@@ -1,7 +1,9 @@
+mod modules;
+
+use modules::commands;
+
 use std::path::PathBuf;
 use structopt::StructOpt;
-
-mod modules;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -22,6 +24,8 @@ enum ThemePicker {
     Remove(RemoveOptions),
     #[structopt(name = "select", about = "change theme to selection")]
     Select(SelectOptions),
+    #[structopt(name = "list", about = "list available themes")]
+    List,
 }
 #[derive(Debug, StructOpt)]
 pub struct AddOptions {
@@ -41,19 +45,34 @@ struct RemoveOptions {
 struct SelectOptions {
     /// theme name
     theme_name: Option<String>,
+
+    ///  reload qtile
+    #[structopt(short)]
+    qtile: bool,
+
+    ///  reload pywalfox
+    #[structopt(short = "f")]
+    pywalfox: bool,
+
+    /// select random theme
+    #[structopt(short)]
+    random: bool,
 }
 
 fn main() {
     let args = CLI::from_args();
     match args.cmd {
         ThemePicker::Add(opt) => {
-            modules::add::add(opt.image_path, opt.theme_name);
+            commands::add::add(opt.image_path, opt.theme_name);
         }
         ThemePicker::Remove(opt) => {
-            modules::remove::remove(opt.theme_name);
+            commands::remove::remove(opt.theme_name);
         }
         ThemePicker::Select(opt) => {
-            modules::select::select(opt.theme_name);
+            commands::select::select(opt.theme_name, opt.qtile, opt.pywalfox, opt.random);
+        }
+        ThemePicker::List => {
+            commands::list::list();
         }
     }
 }
