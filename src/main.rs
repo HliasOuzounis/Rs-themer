@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use structopt::StructOpt;
 
-use add;
+mod modules;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -47,13 +47,13 @@ fn main() {
     let args = CLI::from_args();
     match args.cmd {
         ThemePicker::Add(opt) => {
-            add::add()
+            modules::add::add(opt.image_path, opt.theme_name);
         }
         ThemePicker::Remove(opt) => {
-            println!("{:#?}", opt);
+            modules::remove::remove(opt.theme_name);
         }
         ThemePicker::Select(opt) => {
-            println!("{:#?}", opt);
+            modules::select::select(opt.theme_name);
         }
     }
 }
