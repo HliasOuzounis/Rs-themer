@@ -2,7 +2,13 @@ use crate::modules::{file_handling, theme_changer};
 
 use rand::{thread_rng, Rng};
 
-pub fn select(theme_name: Option<String>, qtile: bool, pywalfox: bool, random: bool) {
+pub fn select(
+    theme_name: Option<String>,
+    qtile: bool,
+    pywalfox: bool,
+    alacritty: bool,
+    random: bool,
+) {
     if !file_handling::config_file_exists() {
         panic!("Themes file doesn't exist yet. Try adding some themes first")
     }
@@ -22,5 +28,8 @@ pub fn select(theme_name: Option<String>, qtile: bool, pywalfox: bool, random: b
     }
     if pywalfox {
         theme_changer::reload_pywalfox();
+    }
+    if alacritty {
+        theme_changer::change_alacritty();
     }
 }

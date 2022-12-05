@@ -13,6 +13,7 @@ pub fn remove(theme_name: Option<String>) {
         let mut themes = file_handling::load_file();
 
         themes.remove(&theme_name).expect("No such theme is saved");
+        
         let mut config_file = file_handling::ovewrite_config_file();
 
         for theme in themes {

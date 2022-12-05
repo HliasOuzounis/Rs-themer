@@ -54,6 +54,10 @@ struct SelectOptions {
     #[structopt(short = "f")]
     pywalfox: bool,
 
+    ///  reload alacritty
+    #[structopt(short)]
+    alacritty: bool,
+
     /// select random theme
     #[structopt(short)]
     random: bool,
@@ -69,7 +73,13 @@ fn main() {
             commands::remove::remove(opt.theme_name);
         }
         ThemePicker::Select(opt) => {
-            commands::select::select(opt.theme_name, opt.qtile, opt.pywalfox, opt.random);
+            commands::select::select(
+                opt.theme_name,
+                opt.qtile,
+                opt.pywalfox,
+                opt.alacritty,
+                opt.random,
+            );
         }
         ThemePicker::List => {
             commands::list::list();

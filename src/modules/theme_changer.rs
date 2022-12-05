@@ -14,6 +14,12 @@ pub fn reload_qtile() {
         .expect("Could not change theme");
 }
 
+pub fn change_alacritty() {
+    Command::new("/home/hlias/code/rust/themer/alacritty-color-export/script.sh")
+        .output()
+        .expect("Could not change alacritty config");
+}
+
 pub fn reload_pywalfox() {
     Command::new("pywalfox")
         .arg("update")
