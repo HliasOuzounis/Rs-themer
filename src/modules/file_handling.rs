@@ -29,13 +29,6 @@ pub fn append_to_config_file() -> fs::File {
         .open(config_file)
         .unwrap()
 }
-pub fn ovewrite_config_file() -> fs::File {
-    let config_file = env::var("XDG_CONFIG_HOME").unwrap() + "/themes/themes";
-    fs::OpenOptions::new()
-        .write(true)
-        .open(config_file)
-        .unwrap()
-}
 
 pub fn create_config_file() -> std::io::Result<fs::File> {
     let config_home = env::var("XDG_CONFIG_HOME").unwrap() + "/themes";
