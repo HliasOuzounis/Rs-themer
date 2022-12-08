@@ -17,7 +17,6 @@ pub fn remove(theme_name: Option<String>) {
             file_handling::create_config_file().expect("Could not remove from file");
 
         for theme in themes {
-            println!("Writing: {}, {}", &theme.0, &theme.1);
             config_file
                 .write_fmt(format_args!("{}:{}\n", theme.0, theme.1))
                 .expect("Error occured when writing to file");

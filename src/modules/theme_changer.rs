@@ -15,7 +15,7 @@ pub fn reload_qtile() {
 }
 
 pub fn change_alacritty() {
-    Command::new("/home/hlias/code/rust/themer/alacritty-color-export/script.sh")
+    Command::new("alacritty_theme")
         .output()
         .expect("Could not change alacritty config");
 }
