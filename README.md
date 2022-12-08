@@ -2,6 +2,20 @@
 
 A simple cli programm to manage your pywal themes.
 
+## Installation
+
+You can either clone this repo and run it with 
+```
+cargo run -- [subcommand] [args]
+``` 
+or build the binary yourself with 
+```
+cargo build --release
+```
+and run it from the target/releases folder
+
+An already compiled binary is available in the "Releases tab".
+
 ## Compatibility
 
 It obviously requires pywal to be installed.
