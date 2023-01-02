@@ -14,18 +14,21 @@ pub fn add(image_path: PathBuf, user_name: Option<String>) {
     } else {
         user_name.unwrap()
     };
+    
+    let mut existing_themes = file_handling::load_file();
 
-    let mut config_file = if !file_handling::config_file_exists() {
-        file_handling::create_config_file().unwrap()
-    } else {
-        file_handling::append_to_config_file()
-    };
+    if existing_themes.contains_key(&theme_name){
+        panic!("Theme with that name already exists")
+    }
+    existing_themes.insert(theme_name, full_path.to_str().unwrap().to_string());
 
-    let theme = format!("{}:{}\n", theme_name, full_path.to_str().unwrap());
+    let mut config_file = file_handling::create_config_file().unwrap();
 
-    config_file
-        .write(theme.as_bytes())
-        .expect("Couldn't save theme to file");
+    for theme in existing_themes {
+            config_file
+                .write_fmt(format_args!("{}:{}\n", theme.0, theme.1))
+                .expect("Error occured when writing to file");
+        }
 }
 
 fn check_image_path(image_path: &PathBuf) {

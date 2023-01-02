@@ -11,6 +11,7 @@ use structopt::StructOpt;
     author = "HliasOuzounis",
     about = "Easy way to switch between multiple pywal themes"
 )]
+
 struct CLI {
     #[structopt(subcommand)]
     cmd: ThemePicker,
