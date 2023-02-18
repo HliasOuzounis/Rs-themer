@@ -15,7 +15,7 @@ pub fn reload_qtile() {
 }
 
 pub fn change_alacritty() {
-    Command::new("alacritty_theme")
+    Command::new("/home/hlias/.local/bin/alacritty_theme")
         .output()
         .expect("Could not change alacritty config");
 }

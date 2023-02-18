@@ -32,3 +32,9 @@ pub fn create_config_file() -> std::io::Result<fs::File> {
     let file_path = [config_home, "themes".to_string()].join("/");
     fs::File::create(file_path)
 }
+
+pub fn get_current_theme() -> String {
+    let file_path = env::var("HOME").unwrap() + "/.cache/wal/wal";
+    let file_content = fs::read_to_string(file_path).expect("Could not read current theme file");
+    return file_content;
+}

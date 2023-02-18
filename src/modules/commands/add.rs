@@ -18,7 +18,7 @@ pub fn add(image_path: PathBuf, user_name: Option<String>) {
     let mut existing_themes = file_handling::load_file();
 
     if existing_themes.contains_key(&theme_name){
-        panic!("Theme with that name already exists")
+        return;
     }
     existing_themes.insert(theme_name, full_path.to_str().unwrap().to_string());
 
