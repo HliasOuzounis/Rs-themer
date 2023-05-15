@@ -23,13 +23,14 @@ pub fn select(
     } else {
         theme_changer::change_theme(themes.get(&theme_name.unwrap()).unwrap());
     }
-    if qtile {
-        theme_changer::reload_qtile();
-    }
+
     if pywalfox {
         theme_changer::reload_pywalfox();
     }
     if alacritty {
         theme_changer::change_alacritty();
+    }
+    if qtile {
+        theme_changer::reload_qtile();
     }
 }
