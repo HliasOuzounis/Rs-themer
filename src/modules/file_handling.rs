@@ -7,7 +7,10 @@ use std::io::BufRead;
 
 
 pub fn get_config_file() -> fs::File {
-    let config_file = env::var("XDG_CONFIG_HOME").unwrap() + "/themes/themes";
+    let config_directory = env::var("XDG_CONFIG_HOME").unwrap() + "/themes";
+    fs::create_dir_all(&config_directory).expect("Could not create themes directory");
+
+    let config_file = config_directory + "/themes.conf";
     OpenOptions::new()
         .read(true)
         .write(true)
@@ -17,7 +20,7 @@ pub fn get_config_file() -> fs::File {
 }
 
 pub fn get_empty_config_file() -> fs::File {
-    let config_file = env::var("XDG_CONFIG_HOME").unwrap() + "/themes/themes";
+    let config_file = env::var("XDG_CONFIG_HOME").unwrap() + "/themes/themes.conf";
     OpenOptions::new()
         .write(true)
         .truncate(true)
