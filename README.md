@@ -14,14 +14,16 @@ cargo build --release
 ```
 and run it from the target/releases folder
 
-An already compiled binary is available in the "Releases tab".
+## Tab Completions
+
+To enable tab completions for the command line tool, you need to source `themer-tabcompletions` on each new session (or source it
+inside your .bashrc/.zshrc) and have the compiled binary `themer` somewhere in your path (like `~/.local/bin`)
 
 ## Compatibility
 
 It obviously requires pywal to be installed.
 Other than that:
 - It's compatible with [pywalfox](https://github.com/Frewacom/pywalfox), just pass the -f flag when selecting a theme.
-- If you use [alacritty](https://github.com/alacritty/alacritty) and want to also change the terminal colors using [this script](https://github.com/egeesin/alacritty-color-export), clone the repo and move script.sh somewhere in the $PATH and rename it "alacritty_theme" and pass the -a flag when selecting a theme.
 - If you want to also reload qtile so it uses the updated colors, pass the -q flag when selecting a theme.
 
 ## Screenshots
@@ -48,19 +50,18 @@ SUBCOMMANDS:
 
 ### Add
 
-add new theme to selections 
+add new theme(s) to selections 
 
 ```
 themer add <image-path> [theme-name]
 
 ARGS:
     <image-path>    image path
-    <theme-name>    theme name (will default to image_name)
 ```
 
 ### Remove
 
-remove theme from selections
+remove theme(s) from selections
 ```
 themer remove [theme-name]
 
