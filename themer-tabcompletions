@@ -3,7 +3,14 @@ _script_completion() {
     local current_word="${COMP_WORDS[COMP_CWORD]}"
     local command="${COMP_WORDS[1]}"
 
-    local theme_names=$(cat "$XDG_CONFIG_HOME"/themes/themes.conf | cut -d':' -f 1 | sort -d)
+    local themes_path="$XDG_CONFIG_HOME"/themes
+    local themes_conf="$themes_path"/themes.conf
+    if [ ! -f "$themes_conf" ]; then
+        mkdir -p "$themes_path"
+        touch "$themes_conf"
+    fi
+
+    local theme_names=$(cat "$themes_conf" | cut -d':' -f 1 | sort -d)
     local subcommands="add remove select list help"
 
     if [ $COMP_CWORD -eq 1 ]; then
