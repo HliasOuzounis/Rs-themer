@@ -4,31 +4,29 @@ use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
 
-pub fn add(image_path: PathBuf, user_name: Option<String>) {
-    check_image_path(&image_path);
+pub fn add(image_paths: Vec<PathBuf>) {
+    let mut config_file = file_handling::get_config_file();
 
-    let full_path = fs::canonicalize(image_path).unwrap();
+    let mut existing_themes = file_handling::read_config_file(&config_file);
 
-    let theme_name = if user_name.is_none() {
-        String::from(full_path.file_stem().unwrap().to_str().unwrap())
-    } else {
-        user_name.unwrap()
-    };
-    
-    let mut existing_themes = file_handling::load_file();
+    for image in image_paths{
+        check_image_path(&image);
 
-    if existing_themes.contains_key(&theme_name){
-        return;
+        let full_path = fs::canonicalize(image).unwrap();
+        let theme_name = String::from(full_path.file_stem().unwrap().to_str().unwrap());
+
+        if existing_themes.contains_key(&theme_name){
+            continue;
+        }
+
+        existing_themes.insert(theme_name, full_path.to_str().unwrap().to_string());
     }
-    existing_themes.insert(theme_name, full_path.to_str().unwrap().to_string());
-
-    let mut config_file = file_handling::create_config_file().unwrap();
 
     for theme in existing_themes {
             config_file
                 .write_fmt(format_args!("{}:{}\n", theme.0, theme.1))
                 .expect("Error occured when writing to file");
-        }
+    }
 }
 
 fn check_image_path(image_path: &PathBuf) {

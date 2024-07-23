@@ -32,15 +32,12 @@ enum ThemePicker {
 pub struct AddOptions {
     /// image path
     #[structopt(parse(from_os_str))]
-    image_path: PathBuf,
-
-    /// theme name (will default to image_name)
-    theme_name: Option<String>,
+    image_path: Vec<PathBuf>
 }
 #[derive(Debug, StructOpt)]
 struct RemoveOptions {
     /// theme name
-    theme_name: Option<String>,
+    theme_name: Vec<String>,
 }
 #[derive(Debug, StructOpt)]
 struct SelectOptions {
@@ -55,10 +52,6 @@ struct SelectOptions {
     #[structopt(short = "f")]
     pywalfox: bool,
 
-    ///  reload alacritty
-    #[structopt(short)]
-    alacritty: bool,
-
     /// select random theme
     #[structopt(short)]
     random: bool,
@@ -66,9 +59,10 @@ struct SelectOptions {
 
 fn main() {
     let args = CLI::from_args();
+
     match args.cmd {
         ThemePicker::Add(opt) => {
-            commands::add::add(opt.image_path, opt.theme_name);
+            commands::add::add(opt.image_path);
         }
         ThemePicker::Remove(opt) => {
             commands::remove::remove(opt.theme_name);
@@ -78,7 +72,6 @@ fn main() {
                 opt.theme_name,
                 opt.qtile,
                 opt.pywalfox,
-                opt.alacritty,
                 opt.random,
             );
         }

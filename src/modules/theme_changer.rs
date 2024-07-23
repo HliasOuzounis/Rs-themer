@@ -14,15 +14,8 @@ pub fn reload_qtile() {
         .expect("Could not change theme");
 }
 
-
-pub fn change_alacritty() {
-    let _output = Command::new("/home/hlias/.local/bin/alacritty_theme")
-        .output()
-        .expect("Could not change alacritty config");
-}
-
 pub fn reload_pywalfox() {
-    let _output = Command::new("/home/hlias/.local/bin/pywalfox")
+    let _output = Command::new("pywalfox")
         .arg("update")
         .output()
         .expect("Could not change theme");

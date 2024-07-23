@@ -1,0 +1,27 @@
+#/usr/bin/env bash
+_script_completion() {
+    local current_word="${COMP_WORDS[COMP_CWORD]}"
+    local command="${COMP_WORDS[1]}"
+
+    local theme_names=$(cat "$XDG_CONFIG_HOME"/themes/themes | cut -d':' -f 1 | sort -d)
+    local subcommands="add remove select list help"
+
+    if [ $COMP_CWORD -eq 1 ]; then
+        COMPREPLY=($(compgen -W "$subcommands" -- "$current_word"))
+    else
+        case "${command}" in
+            remove)
+                COMPREPLY=($(compgen -W "$theme_names" -- "$current_word"))
+                ;;
+            select)
+                COMPREPLY=($(compgen -W "$theme_names" -- "$current_word"))
+                ;;
+            *)
+                COMPREPLY=()
+                ;;
+        esac
+    fi
+}
+
+complete -o default -F _script_completion themer
+
