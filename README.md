@@ -101,11 +101,16 @@ wlr remove <THEME_NAME>...
 ### select
 
 ```sh
+wlr select               # interactive picker
 wlr select <THEME_NAME>
 wlr select --random
 ```
 
 - `-r, --random` — pick a random saved theme
+
+Without a theme name, `select` opens a picker: themes on the left, a preview of the image on the right. Move with `↑`/`↓` (or `j`/`k`), apply with `Enter`, quit with `q` or `Esc`. The active theme is marked with `*`.
+
+The preview uses your terminal's image support (Kitty, Sixel or iTerm2 protocol, e.g. kitty, foot, WezTerm, Ghostty). Other terminals, such as Alacritty, get a lower-resolution preview made of coloured block characters.
 
 Runs `wallust run <image>` for the chosen theme.
 

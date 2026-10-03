@@ -20,7 +20,7 @@ pub enum Commands {
     Add(AddOptions),
     /// Remove theme
     Remove(RemoveOptions),
-    /// Change theme
+    /// Change theme (opens a picker with previews when no name is given)
     Select(SelectOptions),
     /// List available themes
     List(ListOptions),
@@ -57,6 +57,7 @@ pub struct SelectOptions {
     #[arg(value_name = "THEME_NAME")]
     pub theme_name: Option<String>,
 
+    /// Pick a random theme
     #[arg(short, long)]
     pub random: bool,
 }

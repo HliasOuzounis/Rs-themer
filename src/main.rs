@@ -3,6 +3,7 @@ mod cli;
 mod commands;
 mod completions;
 mod store;
+mod tui;
 
 use anyhow::Result;
 use clap::Parser;
