@@ -1,18 +1,21 @@
 use crate::modules::file_handling;
 
-pub fn list() {
-    let config_file = file_handling::get_config_file();
+pub fn list(plain: bool) {
+    let themes = file_handling::load().themes;
 
-    let themes = file_handling::read_config_file(&config_file);
+    // One name per line, for scripts and shell completion
+    if plain {
+        for theme_name in themes.keys() {
+            println!("{}", theme_name);
+        }
+        return;
+    }
+
     let current_theme = file_handling::get_current_theme();
 
-    let mut theme_keys: Vec<&String> = themes.keys().map(|k| k).collect();
-    theme_keys.sort();
-
     println!("---------- Available Themes ----------");
-    for theme_name in theme_keys {
-        let theme_image = themes.get(theme_name).unwrap();
-        if theme_image == &current_theme {
+    for (theme_name, theme_image) in &themes {
+        if current_theme.as_ref() == Some(theme_image) {
             println!("* {:}", theme_name);
             continue;
         }

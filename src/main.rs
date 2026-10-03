@@ -27,7 +27,7 @@ enum WlrCommands {
     /// Change theme
     Select(SelectOptions),
     /// List available themes
-    List,
+    List(ListOptions),
 
     #[command(hide = true)]
     Completions {
@@ -65,6 +65,13 @@ struct SelectOptions {
     random: bool,
 }
 
+#[derive(Debug, Args)]
+struct ListOptions {
+    /// Print only theme names, one per line
+    #[arg(short, long)]
+    plain: bool,
+}
+
 fn main() {
     let args = CLI::parse();
 
@@ -78,8 +85,8 @@ fn main() {
         WlrCommands::Select(opt) => {
             commands::select::select(opt.theme_name, opt.random);
         }
-        WlrCommands::List => {
-            commands::list::list();
+        WlrCommands::List(opt) => {
+            commands::list::list(opt.plain);
         }
         WlrCommands::Completions { shell } => {
             let mut cmd = CLI::command();
@@ -97,16 +104,14 @@ fn main() {
     }
 }
 
-// Theme names live in themes.conf, so the generated script can't list them statically.
-// This helper reads them each time completion runs.
+// Theme names live in themes.toml, so the generated script can't list them statically.
+// This helper asks wlr for them each time completion runs.
 const ZSH_THEMES_HELPER: &str = r#"_wlr_themes() {
-  local themes_path="${XDG_CONFIG_HOME:-$HOME/.config}/wallust"
-  local themes_conf="$themes_path/themes.conf"
-
+  # Split on newlines only, so names with spaces stay whole
   local -a themes
-  themes=($(cut -d ":" -f1 "$themes_conf" | sort -d))
+  themes=(${(f)"$(wlr list --plain 2>/dev/null)"})
 
-  _describe "themes" themes
+  compadd -a themes
 }
 "#;
 

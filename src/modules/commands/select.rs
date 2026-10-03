@@ -2,11 +2,10 @@ use crate::modules::{file_handling, theme_changer};
 use rand::{seq::IteratorRandom, rng};
 
 pub fn select(theme_name: Option<String>, random: bool) {
-    let config_file = file_handling::get_config_file();
-    let themes = file_handling::read_config_file(&config_file);
+    let themes = file_handling::load().themes;
 
     if themes.is_empty() {
-        eprintln!("Error: No themes found in config file.");
+        eprintln!("Error: No themes saved. Add one with `wlr add <image>`.");
         std::process::exit(1);
     }
 

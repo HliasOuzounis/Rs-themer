@@ -1,47 +1,66 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::env;
 use std::fs;
-use std::fs::OpenOptions;
-use std::io;
-use std::io::BufRead;
+use std::path::PathBuf;
 
+use serde::{Deserialize, Serialize};
 
-pub fn get_config_file() -> fs::File {
-    let config_directory = env::var("XDG_CONFIG_HOME").unwrap() + "/wallust";
-    fs::create_dir_all(&config_directory).expect("Could not create themes directory");
-
-    let config_file = config_directory + "/themes.conf";
-    OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create(true)
-        .open(config_file)
-        .expect("Could not open themes file")
+/// Contents of `themes.toml`. A BTreeMap keeps the file sorted by theme name.
+#[derive(Debug, Default, Serialize, Deserialize)]
+pub struct Store {
+    #[serde(default)]
+    pub themes: BTreeMap<String, PathBuf>,
 }
 
-pub fn get_empty_config_file() -> fs::File {
-    let config_file = env::var("XDG_CONFIG_HOME").unwrap() + "/wallust/themes.conf";
-    OpenOptions::new()
-        .write(true)
-        .truncate(true)
-        .create(true)
-        .open(config_file)
-        .expect("Could not open themes file")
-}
-
-pub fn read_config_file(config_file: &fs::File) -> HashMap<String, String> {
-    let mut themes_dictionary = HashMap::<String, String>::new();
-    let reader = io::BufReader::new(config_file);
-    for line in reader.lines() {
-        let theme = line.unwrap();
-        let theme_vec: Vec<&str> = theme.split(":").collect();
-        themes_dictionary.insert(theme_vec[0].to_string(), theme_vec[1].to_string());
+pub fn load() -> Store {
+    let path = themes_file();
+    match fs::read_to_string(&path) {
+        Ok(content) => toml::from_str(&content)
+            .unwrap_or_else(|err| fail(&format!("Could not parse {}:\n{err}", path.display()))),
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => Store::default(),
+        Err(err) => fail(&format!("Could not read {}: {err}", path.display())),
     }
-    return themes_dictionary;
 }
 
-pub fn get_current_theme() -> String {
-    let file_path = env::var("XDG_CACHE_HOME").unwrap() + "/wallust/wallpaper";
-    let file_content = fs::read_to_string(file_path).expect("Could not read current theme file");
-    return file_content;
+/// Write to a temporary file and rename it over the old one,
+/// so a crash never leaves a half-written themes file.
+pub fn save(store: &Store) {
+    let path = themes_file();
+    let dir = path.parent().unwrap();
+    fs::create_dir_all(dir)
+        .unwrap_or_else(|err| fail(&format!("Could not create {}: {err}", dir.display())));
+
+    let content = toml::to_string(store)
+        .unwrap_or_else(|err| fail(&format!("Could not serialize themes: {err}")));
+    let tmp = path.with_extension("toml.tmp");
+    fs::write(&tmp, content)
+        .and_then(|_| fs::rename(&tmp, &path))
+        .unwrap_or_else(|err| fail(&format!("Could not write {}: {err}", path.display())));
+}
+
+/// Image wallust last ran on, if any.
+pub fn get_current_theme() -> Option<PathBuf> {
+    let file_path = xdg_dir("XDG_CACHE_HOME", ".cache").join("wallust/wallpaper");
+    let content = fs::read_to_string(file_path).ok()?;
+    Some(PathBuf::from(content.trim_end()))
+}
+
+fn themes_file() -> PathBuf {
+    xdg_dir("XDG_CONFIG_HOME", ".config").join("wlr/themes.toml")
+}
+
+/// `$VAR`, or `$HOME/<fallback>` when it's unset or empty (per the XDG spec).
+fn xdg_dir(var: &str, fallback: &str) -> PathBuf {
+    match env::var_os(var) {
+        Some(dir) if !dir.is_empty() => PathBuf::from(dir),
+        _ => {
+            let home = env::var_os("HOME").unwrap_or_else(|| fail("HOME is not set"));
+            PathBuf::from(home).join(fallback)
+        }
+    }
+}
+
+fn fail(msg: &str) -> ! {
+    eprintln!("Error: {msg}");
+    std::process::exit(1);
 }

@@ -5,8 +5,7 @@ Add images once, then switch between them (or pick one at random) and wallust re
 
 ## Requirements
 
-- [wallust](https://codeberg.org/explosion-mental/wallust) in your `PATH`
-- `XDG_CONFIG_HOME` and `XDG_CACHE_HOME` environment variables set
+- [wallust](https://codeberg.org/explosion-mental/wallust) 4 in your `PATH`
 
 ## Installation
 
@@ -19,7 +18,8 @@ Or run it directly from the repo with `cargo run -- <SUBCOMMAND> [ARGS]`.
 
 ### NixOS (flake)
 
-The flake builds `wlr`, puts `wallust` on its `PATH` and installs bash/zsh/fish completions.
+The flake builds `wlr`, bundles wallust 4 (from the upstream wallust flake) and installs bash/zsh/fish completions.
+The bundled wallust is only a fallback: if another `wallust` is already on your `PATH`, `wlr` uses that one, so make sure it's version 4.
 
 Try it without installing:
 
@@ -65,7 +65,7 @@ wlr completions bash > ~/.local/share/bash-completion/completions/wlr
 wlr completions fish > ~/.config/fish/completions/wlr.fish
 ```
 
-Theme names (for `select` and `remove`) only complete in **zsh**. clap generates a static script, so for zsh `wlr` patches in a `_wlr_themes` helper that reads the names from `themes.conf` each time you press Tab (see `add_zsh_theme_completion` in `src/main.rs`). Bash and fish complete subcommands and flags, but fall back to file names for themes.
+Theme names (for `select` and `remove`) only complete in **zsh**. clap generates a static script, so for zsh `wlr` patches in a `_wlr_themes` helper that runs `wlr list --plain` each time you press Tab (see `add_zsh_theme_completion` in `src/main.rs`). Bash and fish complete subcommands and flags, but fall back to file names for themes.
 
 To support all shells, `wlr` could switch to clap's [dynamic completion](https://docs.rs/clap_complete/latest/clap_complete/env/index.html) (`unstable-dynamic` feature): one Rust completer for the theme argument, called by every shell at Tab time. Its API is still unstable, so it isn't used yet.
 
@@ -114,15 +114,27 @@ Runs `wallust run <image>` for the chosen theme.
 List saved themes. The active one (read from `$XDG_CACHE_HOME/wallust/wallpaper`) is marked with `*`.
 
 ```sh
-wlr list
+wlr list [-p|--plain]
 ```
+
+- `-p, --plain` — print only theme names, one per line (for scripts, e.g. piping into `fzf` or `rofi`)
 
 ## Files
 
 | Path | Purpose |
 | --- | --- |
-| `$XDG_CONFIG_HOME/wallust/themes.conf` | Saved themes, one `name:/absolute/image/path` per line |
+| `$XDG_CONFIG_HOME/wlr/themes.toml` | Saved themes (see below) |
 | `$XDG_CACHE_HOME/wallust/wallpaper` | Current wallpaper, used by `list` to mark the active theme |
+
+`XDG_CONFIG_HOME` and `XDG_CACHE_HOME` default to `~/.config` and `~/.cache` when unset.
+
+`themes.toml` maps theme names to image paths and is safe to edit by hand:
+
+```toml
+[themes]
+forest = "/home/me/Pictures/forest.jpg"
+"my beach" = "/home/me/Pictures/my beach.png"
+```
 
 ## Screenshots
 
