@@ -1,14 +1,16 @@
 use crate::store;
 
-pub fn list(plain: bool) {
-    let themes = store::load().themes;
+use anyhow::Result;
+
+pub fn list(plain: bool) -> Result<()> {
+    let themes = store::load()?.themes;
 
     // One name per line, for scripts and shell completion
     if plain {
         for theme_name in themes.keys() {
             println!("{}", theme_name);
         }
-        return;
+        return Ok(());
     }
 
     let current_theme = store::get_current_theme();
@@ -21,4 +23,5 @@ pub fn list(plain: bool) {
         }
         println!("{}", theme_name);
     }
+    Ok(())
 }

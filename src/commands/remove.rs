@@ -1,14 +1,15 @@
 use crate::store;
 
-pub fn remove(theme_names: Vec<String>) {
-    let mut saved = store::load();
+use anyhow::{Result, bail};
+
+pub fn remove(theme_names: Vec<String>) -> Result<()> {
+    let mut saved = store::load()?;
 
     for theme_name in theme_names {
-        saved
-            .themes
-            .remove(&theme_name)
-            .expect("No such theme is saved");
+        if saved.themes.remove(&theme_name).is_none() {
+            bail!("Theme '{theme_name}' not found");
+        }
     }
 
-    store::save(&saved);
+    store::save(&saved)
 }

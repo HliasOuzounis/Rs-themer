@@ -84,7 +84,7 @@ Commands:
 
 ### add
 
-Add one or more images as themes. The theme name is the image file name without its extension. Only `jpg` and `png` are accepted.
+Add one or more images as themes. The theme name is the image file name without its extension. Accepted formats: `jpg`, `jpeg` and `png` (any case).
 
 ```sh
 wlr add [-s|--set-theme] <IMAGE_PATH>...

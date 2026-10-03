@@ -1,5 +1,6 @@
 use std::io::{self, Write};
 
+use anyhow::Result;
 use clap::CommandFactory;
 use clap_complete::{Shell, generate};
 
@@ -9,18 +10,17 @@ use crate::cli::Cli;
 // This helper asks wlr for them each time completion runs.
 const ZSH_THEMES_HELPER: &str = include_str!("completions/themes.zsh");
 
-pub fn print(shell: Shell) {
+pub fn print(shell: Shell) -> Result<()> {
     let mut cmd = Cli::command();
     let bin_name = cmd.get_name().to_string();
     let mut buf = Vec::new();
     generate(shell, &mut cmd, bin_name, &mut buf);
-    let mut script = String::from_utf8(buf).expect("Completion script is not valid UTF-8");
+    let mut script = String::from_utf8(buf)?;
     if shell == Shell::Zsh {
         script = add_zsh_theme_completion(&script);
     }
-    io::stdout()
-        .write_all(script.as_bytes())
-        .expect("Error writing completions");
+    io::stdout().write_all(script.as_bytes())?;
+    Ok(())
 }
 
 fn add_zsh_theme_completion(script: &str) -> String {

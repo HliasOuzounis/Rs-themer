@@ -4,11 +4,12 @@ mod commands;
 mod completions;
 mod store;
 
+use anyhow::Result;
 use clap::Parser;
 
 use cli::{Cli, Commands};
 
-fn main() {
+fn main() -> Result<()> {
     match Cli::parse().command {
         Commands::Add(opt) => commands::add::add(opt.image_path, opt.set_theme),
         Commands::Remove(opt) => commands::remove::remove(opt.theme_name),
