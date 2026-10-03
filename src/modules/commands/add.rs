@@ -1,31 +1,47 @@
-use crate::modules::file_handling;
+use crate::modules::{file_handling, theme_changer};
 
 use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
 
-pub fn add(image_paths: Vec<PathBuf>) {
+pub fn add(image_paths: Vec<PathBuf>, set_theme: bool) {
     let mut config_file = file_handling::get_config_file();
 
-    let mut existing_themes = file_handling::read_config_file(&config_file);
+    let mut themes_map = file_handling::read_config_file(&config_file);
 
-    for image in image_paths{
+    for image in &image_paths{
         check_image_path(&image);
 
         let full_path = fs::canonicalize(image).unwrap();
         let theme_name = String::from(full_path.file_stem().unwrap().to_str().unwrap());
 
-        if existing_themes.contains_key(&theme_name){
+        if themes_map.contains_key(&theme_name){
             continue;
         }
 
-        existing_themes.insert(theme_name, full_path.to_str().unwrap().to_string());
+        themes_map.insert(theme_name, full_path.to_str().unwrap().to_string());
     }
 
-    for theme in existing_themes {
-            config_file
-                .write_fmt(format_args!("{}:{}\n", theme.0, theme.1))
-                .expect("Error occured when writing to file");
+    // for theme in themes_map {
+    //         config_file
+    //             .write_fmt(format_args!("{}:{}\n", theme.0, theme.1))
+    //             .expect("Error occured when writing to file");
+    // }
+
+    // 2. Open file with 'truncate' to overwrite the old duplicate-ridden data
+    config_file = file_handling::get_empty_config_file();
+    
+    // 3. Write the deduplicated map back to disk
+    for (name, path) in &themes_map {
+        writeln!(config_file, "{}:{}", name, path).expect("Error writing to file");
+    }
+
+    if set_theme {
+        if image_paths.len() > 1 {
+            panic!("Cannot set theme when adding multiple images");
+        }
+        let full_path = fs::canonicalize(&image_paths[0]).unwrap();
+        theme_changer::change_theme(&full_path.to_str().unwrap());
     }
 }
 

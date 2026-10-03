@@ -1,27 +1,35 @@
-use core::panic;
-
 use crate::modules::{file_handling, theme_changer};
+use rand::{seq::IteratorRandom, rng};
 
-use rand::{thread_rng, Rng};
-
-pub fn select(theme_name: Option<String>, qtile: bool, pywalfox: bool, random: bool) {
+pub fn select(theme_name: Option<String>, random: bool) {
     let config_file = file_handling::get_config_file();
     let themes = file_handling::read_config_file(&config_file);
-    
-    if random {
-        let random_num = thread_rng().gen_range(0..themes.len());
-        let random_theme = themes.keys().skip(random_num).next().unwrap();
-        theme_changer::change_theme(themes.get(random_theme).unwrap());
-    } else if theme_name.is_none() {
-        panic!("No theme name provided");
-    } else {
-        theme_changer::change_theme(themes.get(&theme_name.unwrap()).unwrap());
+
+    if themes.is_empty() {
+        eprintln!("Error: No themes found in config file.");
+        std::process::exit(1);
     }
 
-    if pywalfox {
-        theme_changer::reload_pywalfox();
-    }
-    if qtile {
-        theme_changer::reload_qtile();
+    if random {
+        // Cleaner way to get a random key-value pair from a Map
+        let mut rng_mod = rng();
+        if let Some((_name, path)) = themes.iter().choose(&mut rng_mod) {
+            theme_changer::change_theme(path);
+        }
+    } else {
+        match theme_name {
+            Some(name) => {
+                if let Some(path) = themes.get(&name) {
+                    theme_changer::change_theme(path);
+                } else {
+                    eprintln!("Error: Theme '{}' not found.", name);
+                    std::process::exit(1);
+                }
+            }
+            None => {
+                eprintln!("Error: No theme name provided. Use --random or specify a name.");
+                std::process::exit(1);
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@ _script_completion() {
     else
         case "${command}" in
             remove)
-                COMPREPLY=($(compgen -W "$theme_names" -- "$current_word"))
+                COMPREPLY=($(compgen -W "$theme_names" -- "$current_wor`d"))
                 ;;
             select)
                 COMPREPLY=($(compgen -W "$theme_names" -- "$current_word"))
@@ -30,5 +30,4 @@ _script_completion() {
     fi
 }
 
-complete -o default -F _script_completion themer
-
+compdef -o default -F _script_completion themer

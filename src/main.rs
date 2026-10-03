@@ -1,82 +1,90 @@
 mod modules;
-
 use modules::commands;
 
 use std::path::PathBuf;
-use structopt::StructOpt;
+use std::io;
+// Changed from structopt to clap
+use clap::{Parser, Subcommand, Args, CommandFactory, ValueHint};
+use clap_complete::{generate, Shell};
 
-#[derive(Debug, StructOpt)]
-#[structopt(
-    name = "theme-picker",
-    author = "HliasOuzounis",
-    about = "Easy way to switch between multiple pywal themes"
+#[derive(Debug, Parser)]
+#[command(
+    name = "wlr",
+    about = "A rust-based theme and wallpaper manager",
+    version = "1.0.0"
 )]
-
 struct CLI {
-    #[structopt(subcommand)]
-    cmd: ThemePicker,
+    #[command(subcommand)]
+    cmd: WlrCommands,
 }
 
-#[derive(Debug, StructOpt)]
-enum ThemePicker {
-    #[structopt(name = "add", about = "<image-path> add new theme to selections")]
+#[derive(Debug, Subcommand)]
+enum WlrCommands {
+    /// Add new theme
     Add(AddOptions),
-    #[structopt(name = "remove", about = "[theme name] remove theme from selections")]
+    /// Remove theme
     Remove(RemoveOptions),
-    #[structopt(name = "select", about = "change theme to selection")]
+    /// Change theme
     Select(SelectOptions),
-    #[structopt(name = "list", about = "list available themes")]
+    /// List available themes
     List,
+
+    #[command(hide = true)]
+    Completions {
+        /// The shell to generate completions for
+        #[arg(value_enum)]
+        shell: Shell,
+    },
 }
-#[derive(Debug, StructOpt)]
+
+#[derive(Debug, Args)]
 pub struct AddOptions {
-    /// image path
-    #[structopt(parse(from_os_str))]
-    image_path: Vec<PathBuf>
+    /// Image path(s)
+    #[arg(value_hint = ValueHint::FilePath)] // Tells ZSH to suggest files
+    image_path: Vec<PathBuf>,
+
+    /// Set theme immediately
+    #[arg(short, long)]
+    set_theme: bool,
 }
-#[derive(Debug, StructOpt)]
+
+#[derive(Debug, Args)]
 struct RemoveOptions {
-    /// theme name
+    /// Theme name
+    #[arg(value_name = "THEME_NAME")]
     theme_name: Vec<String>,
 }
-#[derive(Debug, StructOpt)]
+
+#[derive(Debug, Args)]
 struct SelectOptions {
-    /// theme name
+    /// Theme name
+    #[arg(value_name = "THEME_NAME")]
     theme_name: Option<String>,
 
-    ///  reload qtile
-    #[structopt(short)]
-    qtile: bool,
-
-    ///  reload pywalfox
-    #[structopt(short = "f")]
-    pywalfox: bool,
-
-    /// select random theme
-    #[structopt(short)]
+    #[arg(short, long)]
     random: bool,
 }
 
 fn main() {
-    let args = CLI::from_args();
+    let args = CLI::parse();
 
     match args.cmd {
-        ThemePicker::Add(opt) => {
-            commands::add::add(opt.image_path);
+        WlrCommands::Add(opt) => {
+            commands::add::add(opt.image_path, opt.set_theme);
         }
-        ThemePicker::Remove(opt) => {
+        WlrCommands::Remove(opt) => {
             commands::remove::remove(opt.theme_name);
         }
-        ThemePicker::Select(opt) => {
-            commands::select::select(
-                opt.theme_name,
-                opt.qtile,
-                opt.pywalfox,
-                opt.random,
-            );
+        WlrCommands::Select(opt) => {
+            commands::select::select(opt.theme_name, opt.random);
         }
-        ThemePicker::List => {
+        WlrCommands::List => {
             commands::list::list();
+        }
+        WlrCommands::Completions { shell } => {
+            let mut cmd = CLI::command();
+            let bin_name = cmd.get_name().to_string();
+            generate(shell, &mut cmd, bin_name, &mut io::stdout());
         }
     }
 }

@@ -7,7 +7,7 @@ use std::io::BufRead;
 
 
 pub fn get_config_file() -> fs::File {
-    let config_directory = env::var("XDG_CONFIG_HOME").unwrap() + "/themes";
+    let config_directory = env::var("XDG_CONFIG_HOME").unwrap() + "/wallust";
     fs::create_dir_all(&config_directory).expect("Could not create themes directory");
 
     let config_file = config_directory + "/themes.conf";
@@ -20,7 +20,7 @@ pub fn get_config_file() -> fs::File {
 }
 
 pub fn get_empty_config_file() -> fs::File {
-    let config_file = env::var("XDG_CONFIG_HOME").unwrap() + "/themes/themes.conf";
+    let config_file = env::var("XDG_CONFIG_HOME").unwrap() + "/wallust/themes.conf";
     OpenOptions::new()
         .write(true)
         .truncate(true)
@@ -41,7 +41,7 @@ pub fn read_config_file(config_file: &fs::File) -> HashMap<String, String> {
 }
 
 pub fn get_current_theme() -> String {
-    let file_path = env::var("XDG_CACHE_HOME").unwrap() + "/wal/wal";
+    let file_path = env::var("XDG_CACHE_HOME").unwrap() + "/wallust/wallpaper";
     let file_content = fs::read_to_string(file_path).expect("Could not read current theme file");
     return file_content;
 }
