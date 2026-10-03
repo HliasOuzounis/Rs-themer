@@ -2,7 +2,7 @@ mod modules;
 use modules::commands;
 
 use std::path::PathBuf;
-use std::io;
+use std::io::{self, Write};
 // Changed from structopt to clap
 use clap::{Parser, Subcommand, Args, CommandFactory, ValueHint};
 use clap_complete::{generate, Shell};
@@ -84,7 +84,35 @@ fn main() {
         WlrCommands::Completions { shell } => {
             let mut cmd = CLI::command();
             let bin_name = cmd.get_name().to_string();
-            generate(shell, &mut cmd, bin_name, &mut io::stdout());
+            let mut buf = Vec::new();
+            generate(shell, &mut cmd, bin_name, &mut buf);
+            let mut script = String::from_utf8(buf).expect("Completion script is not valid UTF-8");
+            if shell == Shell::Zsh {
+                script = add_zsh_theme_completion(&script);
+            }
+            io::stdout()
+                .write_all(script.as_bytes())
+                .expect("Error writing completions");
         }
     }
+}
+
+// Theme names live in themes.conf, so the generated script can't list them statically.
+// This helper reads them each time completion runs.
+const ZSH_THEMES_HELPER: &str = r#"_wlr_themes() {
+  local themes_path="${XDG_CONFIG_HOME:-$HOME/.config}/wallust"
+  local themes_conf="$themes_path/themes.conf"
+
+  local -a themes
+  themes=($(cut -d ":" -f1 "$themes_conf" | sort -d))
+
+  _describe "themes" themes
+}
+"#;
+
+fn add_zsh_theme_completion(script: &str) -> String {
+    // `#compdef wlr` must stay on the first line or compinit ignores the file
+    let (compdef, rest) = script.split_once('\n').unwrap_or((script, ""));
+    format!("{compdef}\n{ZSH_THEMES_HELPER}{rest}")
+        .replace("Theme name:_default", "Theme name:_wlr_themes")
 }
