@@ -20,7 +20,7 @@
       packages = forAllSystems (pkgs: {
         default = pkgs.rustPlatform.buildRustPackage {
           pname = "wlr";
-          version = "1.0.0";
+          version = "1.1.0";
           # Only the crate, so README/screenshot edits don't trigger a rebuild
           src = pkgs.lib.fileset.toSource {
             root = ./.;
