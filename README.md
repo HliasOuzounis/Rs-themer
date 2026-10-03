@@ -65,7 +65,7 @@ wlr completions bash > ~/.local/share/bash-completion/completions/wlr
 wlr completions fish > ~/.config/fish/completions/wlr.fish
 ```
 
-Theme names (for `select` and `remove`) only complete in **zsh**. clap generates a static script, so for zsh `wlr` patches in a `_wlr_themes` helper that runs `wlr list --plain` each time you press Tab (see `add_zsh_theme_completion` in `src/main.rs`). Bash and fish complete subcommands and flags, but fall back to file names for themes.
+Theme names (for `select` and `remove`) only complete in **zsh**. clap generates a static script, so for zsh `wlr` patches in a `_wlr_themes` helper that runs `wlr list --plain` each time you press Tab (see `src/completions.rs` and `src/completions/themes.zsh`). Bash and fish complete subcommands and flags, but fall back to file names for themes.
 
 To support all shells, `wlr` could switch to clap's [dynamic completion](https://docs.rs/clap_complete/latest/clap_complete/env/index.html) (`unstable-dynamic` feature): one Rust completer for the theme argument, called by every shell at Tab time. Its API is still unstable, so it isn't used yet.
 
